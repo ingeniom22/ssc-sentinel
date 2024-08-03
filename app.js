@@ -28,7 +28,8 @@ scheduler.addSimpleIntervalJob(job);
 app.get('/', (req, res) => {
     fs.readFile(logFilePath, 'utf8', (err, data) => {
         if (err) {
-            res.status(500).send('Internal Server Error:', err);
+            console.error('Error reading log file:', err);
+            res.status(500).send('Internal Server Error');
             return;
         }
 
