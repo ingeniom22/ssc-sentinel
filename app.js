@@ -1,10 +1,11 @@
 const { ToadScheduler, SimpleIntervalJob, Task } = require('toad-scheduler');
 const fs = require('fs');
-const http = require('http');
 const path = require('path');
+const express = require('express');
 
 const logFilePath = path.join(__dirname, 'log.txt');
 const scheduler = new ToadScheduler();
+const app = express();
 
 // Create a task that logs the current time to a file
 const task = new Task('log time', () => {
@@ -23,30 +24,24 @@ const job = new SimpleIntervalJob({ minutes: 5 }, task);
 // Add the job to the scheduler
 scheduler.addSimpleIntervalJob(job);
 
-// Create an HTTP server
-const server = http.createServer((req, res) => {
-    if (req.method === 'GET' && req.url === '/') {
-        fs.readFile(logFilePath, 'utf8', (err, data) => {
-            if (err) {
-                res.writeHead(500, { 'Content-Type': 'text/plain' });
-                res.end('Internal Server Error');
-                return;
-            }
+// Define a route to get the last 20 lines of the log file
+app.get('/', (req, res) => {
+    fs.readFile(logFilePath, 'utf8', (err, data) => {
+        if (err) {
+            res.status(500).send('Internal Server Error');
+            return;
+        }
 
-            const lines = data.trim().split('\n');
-            const last20Lines = lines.slice(-20).join('\n');
-            res.writeHead(200, { 'Content-Type': 'text/plain' });
-            res.end(last20Lines);
-        });
-    } else {
-        res.writeHead(404, { 'Content-Type': 'text/plain' });
-        res.end('Not Found');
-    }
+        const lines = data.trim().split('\n');
+        const last20Lines = lines.slice(-20).join('\n');
+        res.setHeader('Content-Type', 'text/plain');
+        res.send(last20Lines);
+    });
 });
 
-// Start the HTTP server
+// Start the Express server
 const port = 3000;
-server.listen(port, () => {
+app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}/`);
 });
 
