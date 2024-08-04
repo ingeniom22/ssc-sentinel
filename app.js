@@ -1,10 +1,14 @@
 import { ToadScheduler, SimpleIntervalJob, AsyncTask } from 'toad-scheduler';
 import logger from './logger.js';
 import { join } from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 import express from 'express';
 import fs from 'fs/promises';
 import { scrapeAndPostAll } from './scraper.js';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const scheduler = new ToadScheduler();
 
