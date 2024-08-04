@@ -1,47 +1,28 @@
 import { ToadScheduler, SimpleIntervalJob, AsyncTask } from 'toad-scheduler';
-import { pipeline } from '@xenova/transformers';
-import winston from 'winston';
+import logger from './logger.js';
 import { join } from 'path';
 import express from 'express';
 import fs from 'fs/promises';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+import { scrapeAndPostAll } from './scraper.js';
 
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-const logger = winston.createLogger({
-    level: "info",
-    format: winston.format.combine(
-        winston.format.timestamp(),
-        winston.format.json()
-    ),
-    transports: [
-        new winston.transports.File({ filename: "app.log" }),
-    ],
-});
 
 const scheduler = new ToadScheduler();
-let classifier;
 
+const createSentimentTask = () => new AsyncTask('sentinel', async () => {
+    await scrapeAndPostAll();
 
-const createSentimentTask = () => new AsyncTask('retrieve news title', async () => {
-    const newsTitle = 'Jelek sekali!';
-    const output = await classifier(newsTitle);
-    logger.info("Successfully inserted sentiment: ", { newsTitle, output });
 });
 
 
 const runTaskOnce = async () => {
     const task = createSentimentTask();
-    await task.execute();
+    task.execute();
 };
 
 (async () => {
     try {
         logger.info("Application starting...");
-        classifier = await pipeline('sentiment-analysis', 'ingenio/indobert-sentiment-classification-onnx');
-        const job = new SimpleIntervalJob({ hours: 6 }, createSentimentTask());
+        const job = new SimpleIntervalJob({ hours: 4 }, createSentimentTask());
         scheduler.addSimpleIntervalJob(job);
         await runTaskOnce();
         logger.info("Initial task executed successfully.");

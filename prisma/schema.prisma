@@ -1,0 +1,43 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model mediasentiment {
+  id          String   @id
+  region      String
+  title       String
+  url         String   @unique
+  subtitle    String?
+  subtitleUrl String?
+  introtext   String
+  sTitle      String
+  sUrl        String
+  cTitle      String?
+  cUrl        String?
+  date        DateTime
+  timesAgo    String
+  thumb       String
+  video       Boolean
+  sentiment   String
+  confidence  Float
+}
+
+model cybersecurity  {
+  id          Int    @id @default(autoincrement())
+  testName    String
+  sessionName String
+  urlweb      String
+  useajax     String
+  browser     String
+}
