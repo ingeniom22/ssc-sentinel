@@ -34,6 +34,7 @@ const runTaskOnce = async () => {
 
 (async () => {
     try {
+        logger.info("Application starting...");
         classifier = await pipeline('sentiment-analysis', 'ingenio/indobert-sentiment-classification-onnx');
         const job = new SimpleIntervalJob({ hours: 6 }, createSentimentTask());
         scheduler.addSimpleIntervalJob(job);
