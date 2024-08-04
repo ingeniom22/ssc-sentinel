@@ -4,7 +4,9 @@ import winston from 'winston';
 import { join } from 'path';
 import express from 'express';
 import fs from 'fs/promises';
+import { dirname } from 'path';
 
+const __dirname = dirname(__filename);
 const logger = winston.createLogger({
     level: "info",
     format: winston.format.combine(
